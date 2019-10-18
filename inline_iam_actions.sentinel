@@ -1,0 +1,50 @@
+import "strings"
+import "json"
+
+check_action = func(a) {
+  if !(a matches "^ec2:") {
+    print("Action", a, "is not allowed.")
+    return false
+  } else {
+    print("Action", a, "is allowed.")
+    return true
+  }
+}
+
+policy_match = func() {
+  # Make sure there is request data
+  if length(request.data else 0) is 0 {
+    print("No request data")
+    return false
+  }
+
+  if "policy_document" not in keys(request.data) {
+    print("No policy_document")
+    return false
+  }
+
+  # Debug data
+  #print("KEYS:", keys(request.data))
+  #print("DOC:", request.data["policy_document"])
+  #print("TYPE:", request.data["credential_type"])
+
+  # Convert stringified policy into JSON
+  policy_document = json.unmarshal(request.data.policy_document)
+  #print("JSON:", policy_document)
+
+  for policy_document.policy_document.Statement[0].Action as action {
+    return check_action(action)
+  }
+
+  return true
+}
+
+# Rule applies to creating/updating AWS Vault roles
+precond = rule {
+	request.operation in ["create", "update"] and
+	strings.has_prefix(request.path, "aws/roles/")
+}
+
+main = rule when precond {
+	policy_match()
+}
