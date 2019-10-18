@@ -1,12 +1,12 @@
 import "strings"
 import "json"
 
-check_action = func(a) {
-  if !(a matches "^ec2:") {
-    print("Action", a, "is not allowed.")
+check_action = func(r) {
+  if r matches "arn:aws:iam::\\*" {
+    print("Resource", r, "AWS account wildcard is not allowed.")
     return false
   } else {
-    print("Action", a, "is allowed.")
+    print("Resource", r, "AWS account specified.")
     return true
   }
 }
@@ -34,8 +34,8 @@ policy_match = func() {
   #print("JSON:", payload)
 
   for payload.policy_document.Statement as statement {
-    for statement.Action as action {
-      return check_action(action)
+    for statement.Resource as resource {
+      return check_action(resource)
     }
   }
 
