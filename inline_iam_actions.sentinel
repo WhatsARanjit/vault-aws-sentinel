@@ -24,15 +24,16 @@ policy_match = func() {
   }
 
   # Debug data
-  #print("KEYS:", keys(request.data))
-  #print("DOC:", request.data["policy_document"])
-  #print("TYPE:", request.data["credential_type"])
+  print("DATA:", request.data)
+  print("KEYS:", keys(request.data))
+  print("DOC:", request.data.policy_document)
+  print("TYPE:", request.data.credential_type)
 
   # Convert stringified policy into JSON
-  policy_document = json.unmarshal(request.data.policy_document)
-  #print("JSON:", policy_document)
+  payload = json.unmarshal(request.data.policy_document)
+  print("JSON:", payload)
 
-  for policy_document.policy_document.Statement[0].Action as action {
+  for payload.policy_document.Statement[0].Action as action {
     return check_action(action)
   }
 
